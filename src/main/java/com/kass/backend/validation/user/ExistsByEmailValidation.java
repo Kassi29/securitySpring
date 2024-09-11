@@ -8,6 +8,7 @@ public class ExistsByEmailValidation implements ConstraintValidator<ExistsByEmai
 
     private final UserService userService;
 
+
     public ExistsByEmailValidation(UserService userService) {
         this.userService = userService;
     }

@@ -18,6 +18,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
+//@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE })
+//@CrossOrigin(origins = "http://localhost:4200" ,originPatterns = "*")
+//@CrossOrigin({"http://localhost:4200/web/register","http://localhost:4200/panel/userss"})
 public class UserController {
 
     private final UserService userService;
