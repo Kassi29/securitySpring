@@ -33,7 +33,7 @@ public class UserModel {
     @NotBlank(message = "El campo apellido no puede estar vacío.")
     private String lastname;
 
-    @ExistsByEmail(message = "El campo correo electrónico no puede estar vacío.")
+    @ExistsByEmail(message = "El correo electrónico ya existe.")
     @NotBlank(message = "El campo correo electrónico no puede estar vacío.")
     @Email(message = "El correo electrónico debe ser válido.")
     @Column(unique = true)
@@ -83,5 +83,19 @@ public class UserModel {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, lastname, email);
+    }
+
+    @Override
+    public String toString() {
+        return "UserModel{" +
+                "admin=" + admin +
+                ", email='" + email + '\'' +
+                ", enabled=" + enabled +
+                ", id=" + id +
+                ", lastname='" + lastname + '\'' +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                '}';
     }
 }
