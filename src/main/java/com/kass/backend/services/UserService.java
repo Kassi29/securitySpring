@@ -8,7 +8,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,13 +34,11 @@ public class UserService {
 
     //guardar usuario
     public UserModel save(UserModel user) {
-        // Asignar roles especificados en el JSON
         Set<RoleModel> roles = user.getRoles().stream()
                 .map(role -> iRole.findByName(role.getName()).orElse(null))
                 .filter(role -> role != null)
                 .collect(Collectors.toSet());
 
-        // Añadir roles predeterminados si es necesario
         if (user.getAdmin()) {
             Optional<RoleModel> adminRole = iRole.findByName("ROLE_ADMIN");
             adminRole.ifPresent(roles::add);
@@ -57,6 +54,16 @@ public class UserService {
         return iuser.existsByEmail(email);
 
     }
+
+
+    @Transactional
+    public Optional<UserModel> delete(int id) {
+        Optional<UserModel> existingUser = iuser.findById(id);
+        existingUser.ifPresent(iuser::delete);
+        return existingUser;
+    }
+
+
 
 
 

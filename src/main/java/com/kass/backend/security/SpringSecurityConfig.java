@@ -25,7 +25,7 @@ public class SpringSecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
 
-    public SpringSecurityConfig(AuthenticationConfiguration authenticationConfiguration){
+    public SpringSecurityConfig(AuthenticationConfiguration authenticationConfiguration) {
         this.authenticationConfiguration = authenticationConfiguration;
     }
 
@@ -42,11 +42,16 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(HttpMethod.GET,"/users").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/users/register").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/users/roles").permitAll()
-                        .anyRequest().permitAll()
+                .authorizeHttpRequests((authz) -> authz
+                        .requestMatchers(HttpMethod.GET, "/users/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/users/roles").hasRole("SELLER")
+
+
+                        .anyRequest().authenticated()
                 )
                 .addFilter(new JwtAutheticationFilter(authenticationManager()))
                 .addFilter(new JwtValidationFilter(authenticationManager()))

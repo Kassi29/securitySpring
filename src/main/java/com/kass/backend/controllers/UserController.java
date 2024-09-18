@@ -1,6 +1,7 @@
 package com.kass.backend.controllers;
 
 
+import com.kass.backend.dto.UserDto;
 import com.kass.backend.models.RoleModel;
 import com.kass.backend.models.UserModel;
 import com.kass.backend.services.RoleService;
@@ -9,18 +10,17 @@ import com.kass.backend.validation.user.UserValidation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
-//@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE })
-//@CrossOrigin(origins = "http://localhost:4200" ,originPatterns = "*")
-//@CrossOrigin({"http://localhost:4200/web/register","http://localhost:4200/panel/userss"})
 public class UserController {
 
     private final UserService userService;
@@ -58,6 +58,29 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
     }
+
+
+    //elimina
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<String> deleteProduct(@PathVariable int id) {
+        Optional<UserModel> userModelOptional = userService.delete(id);
+        if (userModelOptional.isPresent()) {
+            UserModel userModel = userModelOptional.get();
+            UserDto userDTO = new UserDto(
+                    userModel.getId(),
+                    userModel.getName(),
+                    userModel.getLastname(),
+                    userModel.getEmail(),
+                    userModel.getEnabled(),
+                    userModel.getAdmin()
+            );
+            return ResponseEntity.ok("User successfully deleted: " + userDTO.toString());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
+
 
 
     private ResponseEntity<?> validation(BindingResult bindingResult) {
