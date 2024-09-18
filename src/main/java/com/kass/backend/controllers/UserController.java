@@ -60,21 +60,12 @@ public class UserController {
     }
 
 
-    //elimina
+
     @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable int id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
         Optional<UserModel> userModelOptional = userService.delete(id);
         if (userModelOptional.isPresent()) {
-            UserModel userModel = userModelOptional.get();
-            UserDto userDTO = new UserDto(
-                    userModel.getId(),
-                    userModel.getName(),
-                    userModel.getLastname(),
-                    userModel.getEmail(),
-                    userModel.getEnabled(),
-                    userModel.getAdmin()
-            );
-            return ResponseEntity.ok("User successfully deleted: " + userDTO.toString());
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }
