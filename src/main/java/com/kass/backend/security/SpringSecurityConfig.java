@@ -43,14 +43,17 @@ public class SpringSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authz) -> authz
+
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/users/findByEmail/{email}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/eliminar/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/roles").hasRole("SELLER")
 
-
+                        //     .anyRequest().permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilter(new JwtAutheticationFilter(authenticationManager()))

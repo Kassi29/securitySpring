@@ -63,6 +63,11 @@ public class UserService {
         return existingUser;
     }
 
+    @Transactional
+    public Optional<UserModel> findByEmail(String email) {
+        return iuser.findByEmail(email);
+    }
+
 
 
 

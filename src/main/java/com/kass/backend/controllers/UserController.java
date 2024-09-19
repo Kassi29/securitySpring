@@ -1,7 +1,6 @@
 package com.kass.backend.controllers;
 
 
-import com.kass.backend.dto.UserDto;
 import com.kass.backend.models.RoleModel;
 import com.kass.backend.models.UserModel;
 import com.kass.backend.services.RoleService;
@@ -10,7 +9,6 @@ import com.kass.backend.validation.user.UserValidation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +38,12 @@ public class UserController {
     @GetMapping
     public List<UserModel> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/findByEmail/{email}")
+    public ResponseEntity<UserModel> getUserById(@PathVariable String email) {
+        Optional<UserModel> userModelOptional = userService.findByEmail(email);
+        return userModelOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     //para crear admins
