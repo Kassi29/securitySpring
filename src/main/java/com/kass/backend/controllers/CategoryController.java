@@ -4,6 +4,7 @@ package com.kass.backend.controllers;
 import com.kass.backend.models.CategoryModel;
 import com.kass.backend.services.CategoryService;
 import com.kass.backend.validation.user.category.CategoryValidation;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,4 +68,21 @@ public class CategoryController {
         }
         return ResponseEntity.notFound().build();
     }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable int id, @Valid @RequestBody CategoryModel categoryModel, BindingResult bindingResult) {
+        categoryValidation.validate(categoryModel, bindingResult);
+        if (bindingResult.hasErrors()) {
+            return validation(bindingResult);
+        }
+
+        try {
+            CategoryModel updatedCategory = categoryService.updateCategory(id, categoryModel);
+            return ResponseEntity.ok(updatedCategory);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }
