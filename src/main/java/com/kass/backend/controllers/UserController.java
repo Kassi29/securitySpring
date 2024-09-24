@@ -82,7 +82,7 @@ public class UserController {
         Map<String, String> errors = new HashMap<>();
 
         bindingResult.getFieldErrors().forEach(fieldError -> {
-            errors.put("El campo " + fieldError.getField(), " Tiene el error: " + fieldError.getDefaultMessage());
+            errors.put("El campo " + fieldError.getField(), " Error: " + fieldError.getDefaultMessage());
         });
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
