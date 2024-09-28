@@ -40,9 +40,10 @@ public class AlmacenService {
             AlmacenModel almacenModel1 = almacenModelOptional.get();
             almacenModel1.setId(id);
             almacenModel1.setName(almacenModel.getName());
-            almacenModel1.setLocation(almacenModel.getLocation());
-            almacenModel1.setLat(almacenModel.getLat());
-            almacenModel1.setLng(almacenModel.getLng());
+            almacenModel1.setUbicacion(almacenModel.getUbicacion());
+            almacenModel1.setDepartamento(almacenModel.getDepartamento());
+            almacenModel1.setLatitud(almacenModel.getLatitud());
+            almacenModel1.setLongitud(almacenModel.getLongitud());
             return iAlmacen.save(almacenModel1);
 
         }

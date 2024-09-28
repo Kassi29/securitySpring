@@ -44,17 +44,25 @@ public class SpringSecurityConfig {
         http
                 .authorizeHttpRequests((authz) -> authz
 
+                        .requestMatchers(HttpMethod.GET, "/categories").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/categories").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/categories/{id}").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/categories/{id}").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/categories/{id}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/findByEmail/{email}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
+
                         .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/users/eliminar/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/roles").hasRole("SELLER")
 
-                        //     .anyRequest().permitAll()
-                        .anyRequest().authenticated()
+
+
+                             .anyRequest().permitAll()
+                       // .anyRequest().authenticated()
                 )
                 .addFilter(new JwtAutheticationFilter(authenticationManager()))
                 .addFilter(new JwtValidationFilter(authenticationManager()))

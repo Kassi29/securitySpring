@@ -26,17 +26,17 @@ public class AlmacenValidator implements Validator {
         }
 
         // Validación de la ubicación
-        if (almacenModel.getLocation() == null || almacenModel.getLocation().trim().isEmpty()) {
+        if (almacenModel.getUbicacion() == null || almacenModel.getUbicacion().trim().isEmpty()) {
             errors.rejectValue("location", "almacen.location.required", "El campo ubicación es obligatorio.");
         }
 
         // Validación de la latitud
-        if (almacenModel.getLat() == 0) {
+        if (almacenModel.getLatitud() == 0) {
             errors.rejectValue("lat", "almacen.lat.required", "La latitud debe ser válida.");
         }
 
         // Validación de la longitud
-        if (almacenModel.getLng() == 0) {
+        if (almacenModel.getLongitud() == 0) {
             errors.rejectValue("lng", "almacen.lng.required", "La longitud debe ser válida.");
         }
     }

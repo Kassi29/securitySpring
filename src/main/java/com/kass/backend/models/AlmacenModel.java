@@ -22,25 +22,27 @@ public class AlmacenModel {
     String name;
 
     @Column(nullable = false)
-    String location;
+    String ubicacion;
 
     @Column(nullable = false)
-    double lat;
+    String departamento;
 
     @Column(nullable = false)
-    double lng;
+    double latitud;
 
+    @Column(nullable = false)
+    double longitud;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AlmacenModel that = (AlmacenModel) o;
-        return id == that.id && Double.compare(lat, that.lat) == 0 && Double.compare(lng, that.lng) == 0 && Objects.equals(name, that.name) && Objects.equals(location, that.location);
+        return id == that.id && Double.compare(latitud, that.latitud) == 0 && Double.compare(longitud, that.longitud) == 0 && Objects.equals(name, that.name) && Objects.equals(ubicacion, that.ubicacion) && Objects.equals(departamento, that.departamento);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, location, lat, lng);
+        return Objects.hash(id, name, ubicacion, departamento, latitud, longitud);
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class UserService {
     public UserModel save(UserModel user) {
         Set<RoleModel> roles = user.getRoles().stream()
                 .map(role -> iRole.findByName(role.getName()).orElse(null))
-                .filter(role -> role != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
         if (user.getAdmin()) {
