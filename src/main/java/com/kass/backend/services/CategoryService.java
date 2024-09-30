@@ -34,20 +34,18 @@ public class CategoryService {
         return iCategory.findById(id);
     }
 
-@Transactional
-    public CategoryModel updateCategory(int id, CategoryModel categoryModel) {
-        // Asegúrate de que la categoría a actualizar exista
-        Optional<CategoryModel> existingCategory = iCategory.findById(id);
-        if (existingCategory.isPresent()) {
-            // Actualiza los campos de la categoría existente
-            CategoryModel categoryToUpdate = existingCategory.get();
-            categoryToUpdate.setName(categoryModel.getName());
-            categoryToUpdate.setDescription(categoryModel.getDescription());
-            // Guarda la categoría actualizada
-            return iCategory.save(categoryToUpdate);
+    @Transactional
+    public CategoryModel update(int id, CategoryModel categoryModel) {
+        Optional<CategoryModel> existingCategoryOptional = getCategoryById(id);
+        if (existingCategoryOptional.isPresent()) {
+            CategoryModel existingCategory = existingCategoryOptional.get();
+            existingCategory.setName(categoryModel.getName());
+            existingCategory.setDescription(categoryModel.getDescription());
+            return iCategory.save(existingCategory);
         }
-        throw new EntityNotFoundException("Categoría no encontrada con ID: " + id);
+        throw new EntityNotFoundException("Categoría con ID: " + id + " no encontrada");
     }
+
 
 
     //eliminar
