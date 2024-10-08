@@ -1,14 +1,19 @@
 package com.kass.backend.controllers;
 
 
+import com.kass.backend.dto.UserDto;
+import com.kass.backend.models.CategoryModel;
 import com.kass.backend.models.RoleModel;
 import com.kass.backend.models.UserModel;
 import com.kass.backend.services.RoleService;
 import com.kass.backend.services.UserService;
 import com.kass.backend.validation.user.UserValidation;
+import com.kass.backend.validation.user.UserValidationEdit;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,16 +28,18 @@ public class UserController {
 
     private final UserService userService;
     private final UserValidation userValidation;
+    private final UserValidationEdit userValidationEdit;
 
     //para ver los roles
     private final RoleService roleService;
 
     public UserController(UserService userService, UserValidation userValidation
-            , RoleService roleService) {
+            , RoleService roleService, UserValidationEdit userValidationEdit) {
 
         this.userService = userService;
         this.userValidation = userValidation;
         this.roleService = roleService;
+        this.userValidationEdit = userValidationEdit;
     }
 
     @GetMapping
@@ -76,6 +83,22 @@ public class UserController {
 
 
 
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable int id, @Valid @RequestBody UserDto userDto, BindingResult bindingResult) {
+        userValidationEdit.validate(userDto, bindingResult);
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
+        }
+        try {
+            UserModel updatedUser = userService.update(id, userDto);
+            return ResponseEntity.ok(updatedUser);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 
     private ResponseEntity<?> validation(BindingResult bindingResult) {
