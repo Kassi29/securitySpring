@@ -21,7 +21,7 @@ public class EmpresaValidation implements Validator {
             errors.rejectValue("name", "category.name.required","El campo nombre es obligatorio.");
         }
 
-        if(categoryModel.getUbicacion() == null || categoryModel.getUbicacion().trim().isEmpty()) {
+        if(categoryModel.getLocation() == null || categoryModel.getLocation().trim().isEmpty()) {
             errors.rejectValue("ubicacion", "field.description.required","El campo descripcion es obligatorio.");
         }
 

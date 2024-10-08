@@ -38,7 +38,7 @@ public class EmpresaService {
         if (empresaOptional.isPresent()) {
             EmpresaModel empresaToUpdate = empresaOptional.get();
             empresaToUpdate.setName(empresa.getName());
-            empresaToUpdate.setUbicacion(empresa.getUbicacion());
+            empresaToUpdate.setLocation(empresa.getLocation());
             return iEmpresa.save(empresaToUpdate);
         }
         throw new RuntimeException("No se encontro el id de la empresa");

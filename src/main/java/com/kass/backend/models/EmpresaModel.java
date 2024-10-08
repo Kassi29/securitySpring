@@ -19,5 +19,5 @@ public class EmpresaModel {
     private String name;
 
     @NotBlank(message = "El campo nombre no puede estar vacío.")
-    private String ubicacion;
+    private String location;
 }
