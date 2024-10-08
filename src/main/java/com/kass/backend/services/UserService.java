@@ -1,9 +1,12 @@
 package com.kass.backend.services;
 
+import com.kass.backend.dto.UserDto;
+import com.kass.backend.models.CategoryModel;
 import com.kass.backend.models.RoleModel;
 import com.kass.backend.models.UserModel;
 import com.kass.backend.repositories.IRole;
 import com.kass.backend.repositories.IUser;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +70,35 @@ public class UserService {
     @Transactional
     public Optional<UserModel> findByEmail(String email) {
         return iuser.findByEmail(email);
+    }
+
+
+    @Transactional
+    public UserModel update(int id, UserDto userDto) {
+        // Verificar si el email ya está en uso
+        Optional<UserModel> existingUserWithEmail = iuser.findByEmail(userDto.getEmail());
+        if (existingUserWithEmail.isPresent() && existingUserWithEmail.get().getId() != id) {
+            throw new IllegalArgumentException("El email ya está en uso por otro usuario.");
+        }
+
+        // Encontrar el usuario existente
+        Optional<UserModel> existingUser = iuser.findById(id);
+        if (existingUser.isPresent()) {
+            UserModel existingUserModel = existingUser.get();
+
+            // Actualizar los campos
+            existingUserModel.setName(userDto.getName());
+            existingUserModel.setLastname(userDto.getLastname());
+            existingUserModel.setEmail(userDto.getEmail());
+
+            // Si no deseas actualizar la contraseña en el update, no la modifiques
+            // existingUserModel.setPassword(userDto.getPassword()); // Asegúrate de que la contraseña no se esté enviando en el DTO
+
+            // Guardar y retornar el usuario actualizado
+            return iuser.save(existingUserModel);
+        }
+
+        throw new EntityNotFoundException("Usuario con ID: " + id + " no encontrado");
     }
 
 

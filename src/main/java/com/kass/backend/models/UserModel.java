@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -58,6 +59,10 @@ public class UserModel {
     private Set<RoleModel> roles;
 
 
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
+    private List<ProductModel> products;
+
+
     public UserModel(){
         this.roles = new HashSet<RoleModel>();
     }
@@ -80,20 +85,6 @@ public class UserModel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, lastname, email);
-    }
-
-    @Override
-    public String toString() {
-        return "UserModel{" +
-                "admin=" + admin +
-                ", email='" + email + '\'' +
-                ", enabled=" + enabled +
-                ", id=" + id +
-                ", lastname='" + lastname + '\'' +
-                ", name='" + name + '\'' +
-                ", password='" + password + '\'' +
-                ", roles=" + roles +
-                '}';
+        return Objects.hash(id, name, lastname, email, password, enabled, admin, roles, products);
     }
 }
