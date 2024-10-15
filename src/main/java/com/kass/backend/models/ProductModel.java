@@ -45,10 +45,9 @@ public class ProductModel {
     @Column(nullable = false)
     private double price;
 
-    @JsonIgnoreProperties({"products", "handler", "hibernateLazyInitializer"})
-    @ManyToOne // Relación con UserModel
-    @JoinColumn(name = "user_id", nullable = false) // Columna que referencia al usuario
-    private UserModel seller; // Referencia al vendedor
+    @ManyToOne // Relación con SellerRole
+    @JoinColumn(name = "seller_role_id", nullable = false)
+    private SellerRole seller;
 
 
     @Column(nullable = true)
