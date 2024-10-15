@@ -1,10 +1,13 @@
 package com.kass.backend.controllers;
 
 
+import com.kass.backend.dto.ChangePasswordRequest;
+import com.kass.backend.dto.DeliveryDTO;
 import com.kass.backend.dto.UserDto;
-import com.kass.backend.models.CategoryModel;
-import com.kass.backend.models.RoleModel;
-import com.kass.backend.models.UserModel;
+import com.kass.backend.models.*;
+import com.kass.backend.repositories.IEmpresa;
+import com.kass.backend.services.DeliveryService;
+import com.kass.backend.services.EmpresaService;
 import com.kass.backend.services.RoleService;
 import com.kass.backend.services.UserService;
 import com.kass.backend.validation.user.UserValidation;
@@ -17,10 +20,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
@@ -29,17 +29,24 @@ public class UserController {
     private final UserService userService;
     private final UserValidation userValidation;
     private final UserValidationEdit userValidationEdit;
+    private final EmpresaService empresaService;
+    private final DeliveryService deliveryService;
+
 
     //para ver los roles
     private final RoleService roleService;
 
     public UserController(UserService userService, UserValidation userValidation
-            , RoleService roleService, UserValidationEdit userValidationEdit) {
+            , RoleService roleService, UserValidationEdit userValidationEdit,
+                          EmpresaService empresaService, DeliveryService deliveryService) {
 
         this.userService = userService;
         this.userValidation = userValidation;
         this.roleService = roleService;
         this.userValidationEdit = userValidationEdit;
+        this.empresaService = empresaService;
+        this.deliveryService = deliveryService;
+
     }
 
     @GetMapping
@@ -56,6 +63,7 @@ public class UserController {
     //para crear admins
     @PostMapping
     public ResponseEntity<?> addUser(@Valid @RequestBody UserModel user, BindingResult bindingResult) {
+        System.out.println("ESTAS REGISTRANDO UN USARIO ADMIN");
         user.setAdmin(true);
         return registerUser(user, bindingResult);
     }
@@ -116,4 +124,68 @@ public class UserController {
         return roleService.getAllRoles();
     }
 
+    //rol delivery
+    @PostMapping("/registerDelivery")
+    public ResponseEntity<?> registerDelivery(
+            @Valid @RequestBody UserModel user,
+            @RequestParam int empresaId,
+            BindingResult bindingResult) {
+
+        userValidation.validate(user, bindingResult);
+        if (bindingResult.hasErrors()) {
+            return validation(bindingResult);
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveDelivery(user, empresaId));
+    }
+
+    @GetMapping("/listaDeliverys")
+    public List<DeliveryDTO> getAllDeliveryRoles() {
+        return deliveryService.getAllDeliveryRoles();
+    }
+
+    @DeleteMapping("/listaDeliverys/{id}")
+    public ResponseEntity<Void> deleteDelivery(@PathVariable int id) {
+        deliveryService.deleteDeliveryById(id); // Implementa este método en tu DeliveryService
+        return ResponseEntity.noContent().build();
+    }
+
+    //cambio
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        // Verifica que el ID no sea nulo
+        if (request.getUserId() == null) {
+            return ResponseEntity.badRequest().body("El ID del usuario no puede ser nulo");
+        }
+
+        // Verificar si la contraseña actual es correcta
+        if (!userService.checkCurrentPassword(request.getEmail(), request.getCurrentPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Contraseña actual incorrecta");
+        }
+
+        // Verificar si las nuevas contraseñas coinciden
+        if (!request.getNewPassword().equals(request.getRepeatNewPassword())) {
+            return ResponseEntity.badRequest().body("Las nuevas contraseñas no coinciden");
+        }
+
+        // Cambiar la contraseña
+        userService.changePassword(request.getUserId(), request.getNewPassword());
+
+        return ResponseEntity.ok(Collections.singletonMap("message", "Contraseña cambiada con éxito"));
+
+    }
+
+    //USUARIO X ROL
+    @GetMapping("/filterByRole/{roleName}")
+    public ResponseEntity<List<UserModel>> getUsersByRole(@PathVariable String roleName) {
+        List<UserModel> users = userService.getUsersByRole(roleName);
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(users);
+    }
+
+
 }
+
+
