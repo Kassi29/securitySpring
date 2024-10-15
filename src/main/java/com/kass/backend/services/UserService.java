@@ -78,54 +78,32 @@ public class UserService {
         return iuser.findByEmail(email);
     }
 
-    // Método para guardar un delivery
-     /*
+
     public UserModel saveDelivery(UserModel user, int empresaId) {
         // Verifica que la empresa existe
-        System.out.println("Verifica que la empresa existe");
-        EmpresaModel empresa = iEmpresa.findById(empresaId)
-                .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
-        System.out.println("Set<RoleModel> roles = user.getRoles().stream()");
-        Set<RoleModel> roles = user.getRoles().stream()
-                .map(role -> iRole.findByName(role.getName()).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        System.out.println("Optional<RoleModel> roleModelOptional = iRole.findByName(\"ROLE_DELIVERY\");");
-        Optional<RoleModel> roleModelOptional = iRole.findByName("ROLE_DELIVERY");
-        roleModelOptional.ifPresent(roles::add);
-
-        user.setRoles(roles);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // Guardar el usuario
-        return iuser.save(user);
-    }
-    */
-    public UserModel saveDelivery(UserModel user, int empresaId) {
-        // Verifica que la empresa existe
-        System.out.println("Verifica que la empresa existe");
         EmpresaModel empresa = iEmpresa.findById(empresaId)
                 .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
 
         // Busca el rol DELIVERY existente
-        System.out.println("Buscando rol DELIVERY");
         RoleModel existingRole = iRole.findByName("ROLE_DELIVERY")
                 .orElseThrow(() -> new IllegalArgumentException("Rol DELIVERY no encontrado"));
 
         // Guardar el usuario
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        System.out.println("Guardando el usuario");
         UserModel savedUser = iuser.save(user);
 
         // Crear y guardar la relación DeliveryRole
         DeliveryRole deliveryRole = new DeliveryRole(savedUser, empresa);
         iDelivery.save(deliveryRole); // Asegúrate de tener un repositorio para DeliveryRole
 
-        // Agregar el rol al usuario
-        savedUser.setRoles(Set.of(existingRole));
+        // Agregar el rol al usuario y guardarlo
+        Set<RoleModel> roles = new HashSet<>();
+        roles.add(existingRole);
+        savedUser.setRoles(roles); // Esto crea un Set mutable
 
-        return savedUser;
+        return iuser.save(savedUser); // Guarda el usuario nuevamente para persistir los roles
     }
+
 
     @Transactional
     public UserModel update(int id, UserDto userDto) {
