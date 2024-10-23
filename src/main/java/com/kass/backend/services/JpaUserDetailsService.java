@@ -43,6 +43,7 @@ public class JpaUserDetailsService implements UserDetailsService {
         boolean isEnabled = Boolean.TRUE.equals(userModel.getEnabled());
 
         return new User(userModel.getEmail(),
+
                 userModel.getPassword(),
                 isEnabled,
                 true,

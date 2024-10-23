@@ -13,6 +13,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "roles")
 public class RoleModel {
 

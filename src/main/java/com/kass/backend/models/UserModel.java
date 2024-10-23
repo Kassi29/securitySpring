@@ -57,10 +57,6 @@ public class UserModel {
     )
     private Set<RoleModel> roles;
 
-/*
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
-    private List<ProductModel> products;
-*/
 
     public UserModel(){
         this.roles = new HashSet<RoleModel>();

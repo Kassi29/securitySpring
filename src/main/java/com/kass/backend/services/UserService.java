@@ -2,10 +2,7 @@ package com.kass.backend.services;
 
 import com.kass.backend.dto.UserDto;
 import com.kass.backend.models.*;
-import com.kass.backend.repositories.IDelivery;
-import com.kass.backend.repositories.IEmpresa;
-import com.kass.backend.repositories.IRole;
-import com.kass.backend.repositories.IUser;
+import com.kass.backend.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Join;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,14 +20,18 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final IEmpresa iEmpresa;
     private final IDelivery iDelivery;
+    private final IComunidad iComunidad;
+    private final ISeller iSeller;
 
-    public UserService(IUser iuser, PasswordEncoder passwordEncoder, IRole iRole ,IEmpresa iEmpresa
-    , IDelivery iDelivery) {
+    public UserService(IUser iuser, PasswordEncoder passwordEncoder, IRole iRole , IEmpresa iEmpresa
+    , IDelivery iDelivery, IComunidad iComunidad, ISeller iSeller) {
         this.iuser = iuser;
         this.passwordEncoder = passwordEncoder;
         this.iRole = iRole;
         this.iEmpresa = iEmpresa;
         this.iDelivery = iDelivery;
+        this.iComunidad = iComunidad;
+        this.iSeller = iSeller;
     }
 
     //lista todos los usuarios
@@ -80,29 +81,52 @@ public class UserService {
 
 
     public UserModel saveDelivery(UserModel user, int empresaId) {
-        // Verifica que la empresa existe
-        EmpresaModel empresa = iEmpresa.findById(empresaId)
+
+         EmpresaModel empresa = iEmpresa.findById(empresaId)
                 .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada"));
 
-        // Busca el rol DELIVERY existente
         RoleModel existingRole = iRole.findByName("ROLE_DELIVERY")
                 .orElseThrow(() -> new IllegalArgumentException("Rol DELIVERY no encontrado"));
+
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        UserModel savedUser = iuser.save(user);
+
+        DeliveryRole deliveryRole = new DeliveryRole(savedUser, empresa);
+        iDelivery.save(deliveryRole); // Asegúrate de tener un repositorio para DeliveryRole
+
+        Set<RoleModel> roles = new HashSet<>();
+        roles.add(existingRole);
+        savedUser.setRoles(roles);
+
+        return iuser.save(savedUser);
+    }
+
+
+    public UserModel saveArtesano(UserModel user, int comunidadId) {
+
+        ComunidadModel comunidadModel = iComunidad.findById(comunidadId)
+                .orElseThrow(() -> new IllegalArgumentException("Comunidad no encontrada"));
+
+        RoleModel sellerRole = iRole.findByName("ROLE_SELLER")
+                .orElseThrow(() -> new IllegalArgumentException("Rol SELLER no encontrado"));
 
         // Guardar el usuario
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         UserModel savedUser = iuser.save(user);
 
-        // Crear y guardar la relación DeliveryRole
-        DeliveryRole deliveryRole = new DeliveryRole(savedUser, empresa);
-        iDelivery.save(deliveryRole); // Asegúrate de tener un repositorio para DeliveryRole
+        // Crea y guarda el rol de vendedor
+        SellerRole sellerRoleEntity = new SellerRole(savedUser, comunidadModel);
+        iSeller.save(sellerRoleEntity);
 
-        // Agregar el rol al usuario y guardarlo
+        // Establece el rol SELLER al usuario
         Set<RoleModel> roles = new HashSet<>();
-        roles.add(existingRole);
-        savedUser.setRoles(roles); // Esto crea un Set mutable
+        roles.add(sellerRole);
+        savedUser.setRoles(roles);
 
-        return iuser.save(savedUser); // Guarda el usuario nuevamente para persistir los roles
+        return iuser.save(savedUser);
     }
+
 
 
     @Transactional

@@ -21,4 +21,6 @@ public class ComunidadModel {
 
     @NotBlank(message = "El campo nombre no puede estar vacío.")
     private String location;
+
+
 }

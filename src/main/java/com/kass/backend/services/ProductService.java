@@ -50,6 +50,7 @@ public class ProductService {
             UserModel user = sellerRole.getUser();
 
             ProductDTO dto = new ProductDTO();
+            dto.setId(product.getId());
             dto.setName(product.getName());
             dto.setDescription(product.getDescription());
 

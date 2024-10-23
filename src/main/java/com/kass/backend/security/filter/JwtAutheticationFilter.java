@@ -2,6 +2,7 @@ package com.kass.backend.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kass.backend.models.UserModel;
+import com.kass.backend.services.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
@@ -25,10 +26,12 @@ import static com.kass.backend.security.TokenJwtConfig.*;
 public class JwtAutheticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
+    private final UserService userService;
 
 
-    public JwtAutheticationFilter(AuthenticationManager authenticationManager) {
+    public JwtAutheticationFilter(AuthenticationManager authenticationManager,UserService userService ) {
         this.authenticationManager = authenticationManager;
+        this.userService=userService;
     }
 
     @Override
@@ -49,34 +52,50 @@ public class JwtAutheticationFilter extends UsernamePasswordAuthenticationFilter
         return authenticationManager.authenticate(authRequest);
 
     }
-
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         User user = (User) authResult.getPrincipal();
         String email = user.getUsername();
 
+        Optional<UserModel> optionalUserModel = userService.findByEmail(email);
 
-        Collection<? extends GrantedAuthority > roles = authResult.getAuthorities();
-        Claims claims = Jwts.claims().add("authorities",new ObjectMapper().writeValueAsString(roles)).build();
+        if (optionalUserModel.isPresent()) {
+            UserModel userModel = optionalUserModel.get();
+            int userId = userModel.getId();
+            Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
+            Claims claims = Jwts.claims().add("authorities", new ObjectMapper().writeValueAsString(roles)).build();
 
-        String token = Jwts.builder().subject(email)
-                .signWith(SECRET_KEY)
-                .claims(claims)
-                .expiration(new Date(System.currentTimeMillis() + 3600000))
-                .issuedAt(new Date())
-                .compact();
+            String token = Jwts.builder().subject(email)
+                    .signWith(SECRET_KEY)
+                    .claims(claims)
+                    .expiration(new Date(System.currentTimeMillis() + 3600000))
+                    .issuedAt(new Date())
+                    .compact();
 
-        response.addHeader(HEADER_AUTHORIZATION, PREFIX_TOKEN + token);
+            response.addHeader(HEADER_AUTHORIZATION, PREFIX_TOKEN + token);
 
-        Map<String, String> body = new HashMap<>();
-        body.put("token", token);
-        body.put("email", email);
-        body.put("message", String.format("Hola %s ! , has iniciado sesion con exito!", email));
+            Map<String, String> body = new HashMap<>();
+            body.put("token", token);
+            body.put("email", email);
+            body.put("userId", String.valueOf(userId)); // Agregar el ID del usuario
+            body.put("message", String.format("Hola %s ! , has iniciado sesión con éxito!", email));
 
-        response.getWriter().write(new ObjectMapper().writeValueAsString(body));
-        response.setContentType(CONTENT_TYPE);
-        response.setStatus(200);
+            response.getWriter().write(new ObjectMapper().writeValueAsString(body));
+            response.setContentType(CONTENT_TYPE);
+            response.setStatus(200);
+        } else {
+            // Manejo del caso en que no se encuentra el usuario
+            Map<String, String> body = new HashMap<>();
+            body.put("message", "Usuario no encontrado.");
+            response.getWriter().write(new ObjectMapper().writeValueAsString(body));
+            response.setContentType(CONTENT_TYPE);
+            response.setStatus(404); // O cualquier otro estado adecuado
+        }
     }
+
+
+
+
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {

@@ -1,9 +1,12 @@
 package com.kass.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,4 +23,8 @@ public class EmpresaModel {
 
     @NotBlank(message = "El campo nombre no puede estar vacío.")
     private String location;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "empresa")
+    private List<DeliveryRole> deliveries; // Relación inversa
 }

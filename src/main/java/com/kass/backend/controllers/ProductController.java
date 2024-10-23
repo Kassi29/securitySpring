@@ -7,8 +7,6 @@ import com.kass.backend.repositories.IAlmacen;
 import com.kass.backend.repositories.ICategory;
 import com.kass.backend.repositories.ISeller;
 import com.kass.backend.repositories.IUser;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kass.backend.services.ProductService;
@@ -48,15 +46,7 @@ public class ProductController {
         this.iSeller = iSeller;
     }
 
-/*
-    @GetMapping
-    public List<ProductModel> getAllProducts() {
-        return productService.getAllProducts();
-    }
 
-
-
- */
 @GetMapping
 public List<ProductDTO> getAllProducts() {
     return productService.getAllProducts();
@@ -100,7 +90,7 @@ public List<ProductDTO> getAllProducts() {
         });
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
-
+/*
     @PostMapping
     public ResponseEntity<?> addProduct(
             @RequestParam("file") MultipartFile file,
@@ -162,6 +152,140 @@ public List<ProductDTO> getAllProducts() {
         // Guardar el producto
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.save(productModel));
     }
+    @PostMapping
+public ResponseEntity<?> addProduct(
+        @RequestParam("file") MultipartFile file,
+        @RequestParam("name") String name,
+        @RequestParam("description") String description,
+        @RequestParam("stock") int stock,
+        @RequestParam("price") double price,
+        @RequestParam("categories") List<Integer> categoryIds,
+        @RequestParam("seller") int sellerId,
+        @RequestParam("almacen") int almacenId) {
+
+    // Verificar si el usuario existe
+    Optional<UserModel> userOptional = iUser.findById(sellerId);
+    if (!userOptional.isPresent()) {
+        return ResponseEntity.badRequest().body("El vendedor no existe.");
+    }
+    UserModel user = userOptional.get();
+    System.out.println("Usuario encontrado: " + user.getName());
+
+    // Verificar si el SellerRole ya existe para el usuario
+    Optional<SellerRole> sellerRoleOptional = iSeller.findByUser(user);
+    SellerRole sellerRole;
+    if (sellerRoleOptional.isPresent()) {
+        sellerRole = sellerRoleOptional.get();
+    } else {
+        // Crear el SellerRole si no existe
+        sellerRole = new SellerRole(user);
+        sellerRole = iSeller.save(sellerRole);
+        if (sellerRole == null || sellerRole.getId() == 0) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No se pudo crear el SellerRole.");
+        }
+        System.out.println("SellerRole guardado con ID: " + sellerRole.getId());
+    }
+
+    // Obtener las categorías
+    List<CategoryModel> categoryModels = iCategory.findByIdIn(categoryIds);
+    if (categoryModels.isEmpty()) {
+        return ResponseEntity.badRequest().body("Al menos una categoría es obligatoria.");
+    }
+
+    // Crear el ProductModel
+    ProductModel productModel = new ProductModel();
+    productModel.setName(name);
+    productModel.setDescription(description);
+    productModel.setStock(stock);
+    productModel.setPrice(price);
+    productModel.setCategories(categoryModels);
+    productModel.setSeller(sellerRole); // Establecer el SellerRole en el producto
+
+    // Obtener el almacén
+    Optional<AlmacenModel> almacenOptional = iAlmacen.findById(almacenId);
+    if (!almacenOptional.isPresent()) {
+        return ResponseEntity.badRequest().body("El almacén no existe.");
+    }
+    productModel.setAlmacen(almacenOptional.get());
+
+    // Guardar la imagen
+    if (!file.isEmpty()) {
+        String imageUrl = saveImage(file);
+        productModel.setImageUrl("http://localhost:8080" + imageUrl);
+    }
+
+    // Guardar el producto
+    return ResponseEntity.status(HttpStatus.CREATED).body(productService.save(productModel));
+}
+
+ */
+
+    @PostMapping
+    public ResponseEntity<?> addProduct(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("stock") int stock,
+            @RequestParam("price") double price,
+            @RequestParam("categories") List<Integer> categoryIds,
+            @RequestParam("seller") int sellerId,
+            @RequestParam("almacen") int almacenId) {
+
+        // Verificar si el usuario existe
+        Optional<UserModel> userOptional = iUser.findById(sellerId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.badRequest().body("El vendedor no existe.");
+        }
+        UserModel user = userOptional.get();
+        System.out.println("Usuario encontrado: " + user.getName());
+
+        // Verificar si el SellerRole ya existe para el usuario
+        List<SellerRole> sellerRoles = iSeller.findByUserId(sellerId);
+        SellerRole sellerRole;
+        if (!sellerRoles.isEmpty()) {
+            sellerRole = sellerRoles.get(0); // Obtener el primer SellerRole encontrado
+        } else {
+            // Crear el SellerRole si no existe
+            sellerRole = new SellerRole(user);
+            sellerRole = iSeller.save(sellerRole);
+            if (sellerRole == null || sellerRole.getId() == 0) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No se pudo crear el SellerRole.");
+            }
+            System.out.println("SellerRole guardado con ID: " + sellerRole.getId());
+        }
+
+        // Obtener las categorías
+        List<CategoryModel> categoryModels = iCategory.findByIdIn(categoryIds);
+        if (categoryModels.isEmpty()) {
+            return ResponseEntity.badRequest().body("Al menos una categoría es obligatoria.");
+        }
+
+        // Crear el ProductModel
+        ProductModel productModel = new ProductModel();
+        productModel.setName(name);
+        productModel.setDescription(description);
+        productModel.setStock(stock);
+        productModel.setPrice(price);
+        productModel.setCategories(categoryModels);
+        productModel.setSeller(sellerRole); // Establecer el SellerRole en el producto
+
+        // Obtener el almacén
+        Optional<AlmacenModel> almacenOptional = iAlmacen.findById(almacenId);
+        if (!almacenOptional.isPresent()) {
+            return ResponseEntity.badRequest().body("El almacén no existe.");
+        }
+        productModel.setAlmacen(almacenOptional.get());
+
+        // Guardar la imagen
+        if (!file.isEmpty()) {
+            String imageUrl = saveImage(file);
+            productModel.setImageUrl("http://localhost:8080" + imageUrl);
+        }
+
+        // Guardar el producto
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.save(productModel));
+    }
+
 
 
     public String saveImage(MultipartFile file) {
