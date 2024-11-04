@@ -52,6 +52,9 @@ public class EmpresaService {
         return empresaOptional;
 
     }
+    public List<EmpresaModel> getEmpresasByLocation(String location) {
+        return iEmpresa.findByLocation(location);
+    }
 
 
 }

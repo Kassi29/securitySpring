@@ -56,6 +56,7 @@ public class SpringSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/categories/{id}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.GET,"/products").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/by-location/{location}").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/products//seller/{userId}").hasRole("SELLER")
                         .requestMatchers(HttpMethod.GET, "/users/findByEmail/{email}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/roles").hasRole("SELLER")

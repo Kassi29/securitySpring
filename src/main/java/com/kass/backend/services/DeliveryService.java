@@ -57,4 +57,12 @@ public class DeliveryService {
         deliveryRoleRepository.deleteByUserId(userId);
     }
 
+    public List<UserModel> getUsersByEmpresaId(int empresaId) {
+        List<DeliveryRole> deliveryRoles = deliveryRoleRepository.findByEmpresaId(empresaId);
+        return deliveryRoles.stream()
+                .map(deliveryRole -> deliveryRole.getUser()) // Obtiene el usuario de cada DeliveryRole
+                .distinct() // Asegúrate de que los usuarios sean únicos
+                .collect(Collectors.toList());
+    }
+
 }

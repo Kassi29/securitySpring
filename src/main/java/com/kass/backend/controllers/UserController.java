@@ -279,6 +279,11 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/{empresaId}/users")
+    public List<UserModel> getUsersByEmpresa(@PathVariable int empresaId) {
+        return deliveryService.getUsersByEmpresaId(empresaId);
+    }
+
 
 }
 

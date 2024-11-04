@@ -7,10 +7,15 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface IDelivery extends JpaRepository<DeliveryRole, Integer> {
     @Modifying
     @Query("DELETE FROM DeliveryRole dr WHERE dr.user.id = :userId")
     void deleteByUserId(@Param("userId") int userId);
+
+    List<DeliveryRole> findByEmpresaId(int empresaId);
+
 
 
 

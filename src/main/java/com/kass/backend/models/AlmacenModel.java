@@ -33,6 +33,10 @@ public class AlmacenModel {
     @Column(nullable = false)
     double longitud;
 
+    @ManyToOne // Relación con Empresa
+    @JoinColumn(name = "empresa_id", nullable = false) // Columna que referencia a la tabla empresa
+    private EmpresaModel empresa;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

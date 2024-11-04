@@ -77,6 +77,10 @@ public class EmpresaController {
         }
         return ResponseEntity.notFound().build();
     }
+    @GetMapping("/by-location/{location}")
+    public List<EmpresaModel> getEmpresasByLocation(@PathVariable String location) {
+        return empresaService.getEmpresasByLocation(location);
+    }
 
 
 
